@@ -68,8 +68,6 @@ public class PreferenceDialog extends AbstractWizardDialog {
       list.add(dicomPrefView);
       DrawPrefView drawPrefView = new DrawPrefView(this);
       list.add(drawPrefView);
-      TestPrefView testPrefView = new TestPrefView();
-      list.add(testPrefView);
       BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
       try {

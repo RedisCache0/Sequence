@@ -103,7 +103,6 @@ public class PluginOpeningStrategy {
       }
     }
     if (selectPatient) {
-      JOptionPane.showMessageDialog(null, "Select Patient");
       // Send event to select the related patient in Dicom Explorer.
       if(!OpeningViewer.ADVANCED.equals(openingMode)){
         dicomModel.firePropertyChange(

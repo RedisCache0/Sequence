@@ -102,9 +102,13 @@ public class WeasisWinListener implements MainWindowListener {
             }
           }
         } else if (ObservableEvent.BasicAction.REGISTER.equals(action)) {
+
+
           if (source instanceof ViewerPlugin<?> viewerPlugin) {
             mainWindow.registerPlugin(viewerPlugin);
+
           } else if (source instanceof ViewerPluginBuilder builder) {
+
             DataExplorerModel model = builder.getModel();
             List<MediaSeries<MediaElement>> series = builder.getSeries();
             Map<String, Object> props = builder.getProperties();
@@ -119,6 +123,8 @@ public class WeasisWinListener implements MainWindowListener {
                       && builder.getFactory().isViewerCreatedByThisFactory(selectedPlugin);
 
               if (series.size() == 1) {
+                JOptionPane.showMessageDialog(null, "1");
+
                 MediaSeries<MediaElement> s = series.get(0);
                 MediaSeriesGroup group =
                     treeModel.getParent(s, model.getTreeModelNodeForNewPlugin());
@@ -128,6 +134,8 @@ public class WeasisWinListener implements MainWindowListener {
                 }
                 mainWindow.openSeriesInViewerPlugin(builder, group);
               } else if (series.size() > 1) {
+
+
                 HashMap<MediaSeriesGroup, List<MediaSeries<?>>> map =
                     mainWindow.getSeriesByEntry(
                         treeModel, series, model.getTreeModelNodeForNewPlugin());
@@ -143,12 +151,12 @@ public class WeasisWinListener implements MainWindowListener {
                       }
                     }
                   }
+
                   mainWindow.openSeriesInViewerPlugin(builder, group);
                 }
               }
 
             } else {
-              JOptionPane.showMessageDialog(null, "GROUP");
               
               mainWindow.openSeriesInViewerPlugin(builder, null);
             }

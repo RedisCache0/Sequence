@@ -386,12 +386,13 @@ public class WeasisWin {
               && group.equals(p.getGroupID())) {
             if (setInSelection && seriesList.size() == 1) {
               viewer.addSeries(seriesList.get(0));
+
             } else {
               viewer.addSeriesList(seriesList, bestDefaultLayout);
-            }
-            JOptionPane.showMessageDialog(null, "FOCUS");
 
-            viewer.setSelectedAndGetFocus();
+            }
+
+            //viewer.setSelectedAndGetFocus();
             return;
           }
         }
@@ -401,6 +402,7 @@ public class WeasisWin {
     props.put(DataExplorerModel.class.getName(), model);
     if (seriesList.size() > 1) {
       props.put(ViewCanvas.class.getName(), seriesList.size());
+
     }
     SeriesViewer<?> seriesViewer = factory.createSeriesViewer(props);
     if (seriesViewer instanceof MimeSystemAppViewer) {
@@ -458,7 +460,8 @@ public class WeasisWin {
         registered = registerPlugin(viewer);
       }
       if (registered) {
-        viewer.setSelectedAndGetFocus();
+
+        // viewer.setSelectedAndGetFocus();
         if (seriesViewer instanceof ImageViewerPlugin) {
           if (!setInSelection) {
             ((ImageViewerPlugin) viewer).selectLayoutPositionForAddingSeries(seriesList);
@@ -467,7 +470,7 @@ public class WeasisWin {
         for (MediaSeries m : seriesList) {
           viewer.addSeries(m);
         }
-        viewer.setSelected(true);
+        // viewer.setSelected(true);
       } else {
         viewer.close();
         viewer.handleFocusAfterClosing();

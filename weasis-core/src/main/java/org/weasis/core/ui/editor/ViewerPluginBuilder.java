@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+
+import javax.swing.JOptionPane;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weasis.core.api.explorer.ObservableEvent;
@@ -139,7 +142,7 @@ public class ViewerPluginBuilder {
          else{
             WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
             Integer openin = localPersistence.getIntProperty("OPENIN", 0);
-            if (openin == 0){
+            if (openin == 1){
                localPersistence.putIntProperty("OPENIN", openin+1);
                model.firePropertyChange(new ObservableEvent(ObservableEvent.BasicAction.REGISTER, model, (Object)null, builder));
             }

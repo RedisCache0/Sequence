@@ -303,7 +303,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
   public void addSeries(MediaSeries<E> sequence) {
     if (sequence != null && selectedImagePane != null) {
       if (SynchData.Mode.TILE.equals(synchView.getSynchData().getMode())) {
-        selectedImagePane.setSeries(sequence, null);
+        // selectedImagePane.setSeries(sequence, null);
         updateTileOffset();
         return;
       }
@@ -313,7 +313,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
         viewPane.getJComponent().repaint();
 
         // Set selection to the next view
-        setSelectedImagePane(getNextSelectedImagePane());
+        // setSelectedImagePane(getNextSelectedImagePane());
       }
     }
   }
@@ -471,7 +471,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
           v.getGraphicManager().addGraphicSelectionListener(glistener);
         }
       }
-      selectedImagePane.setSelected(true);
+      // selectedImagePane.setSelected(true);
       eventManager.updateComponentsListener(selectedImagePane);
       if (selectedImagePane.getSeries() instanceof Series) {
         eventManager.fireSeriesViewerListeners(
@@ -522,7 +522,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
           }
           v.enableMouseAndKeyListener(mouseActions);
         }
-        selectedImagePane.setSelected(true);
+        // selectedImagePane.setSelected(true);
         eventManager.updateComponentsListener(selectedImagePane);
       }
     }
@@ -946,7 +946,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
 
         // If the layout is larger than the list of series, clean other views.
         if (view2ds.size() > seriesList.size()) {
-          setSelectedImagePane(view2ds.get(seriesList.size()));
+          // setSelectedImagePane(view2ds.get(seriesList.size()));
           for (int i = seriesList.size(); i < view2ds.size(); i++) {
             ViewCanvas<E> viewPane = getSelectedImagePane();
             if (viewPane != null) {
@@ -956,7 +956,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
           }
         }
         if (!view2ds.isEmpty()) {
-          setSelectedImagePane(view2ds.getFirst());
+          // setSelectedImagePane(view2ds.getFirst());
         }
         for (MediaSeries mediaSeries : seriesList) {
           addSeries(mediaSeries);
@@ -974,7 +974,7 @@ public abstract class ImageViewerPlugin<E extends ImageElement> extends ViewerPl
         int index = 0;
         for (ViewCanvas<E> v : view2ds) {
           if (v.getSeries() == null && index < seriesList.size()) {
-            setSelectedImagePane(v);
+            // setSelectedImagePane(v);
             addSeries(seriesList.get(index));
             index++;
           }
