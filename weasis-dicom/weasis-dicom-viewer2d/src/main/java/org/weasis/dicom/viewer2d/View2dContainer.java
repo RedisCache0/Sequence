@@ -98,6 +98,10 @@ import org.weasis.dicom.explorer.ImportToolBar;
 import org.weasis.dicom.explorer.print.DicomPrintDialog;
 import org.weasis.dicom.viewer2d.dockable.DisplayTool;
 import org.weasis.dicom.viewer2d.dockable.ImageTool;
+import org.weasis.dicom.codec.display.Modality;
+import org.weasis.dicom.codec.display.ModalityInfoData;
+import org.weasis.dicom.codec.display.ModalityView;
+import javax.swing.JOptionPane;
 
 public class View2dContainer extends DicomViewerPlugin implements PropertyChangeListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(View2dContainer.class);
@@ -139,8 +143,15 @@ public class View2dContainer extends DicomViewerPlugin implements PropertyChange
   }
 
   public View2dContainer(
-      GridBagLayoutModel layoutModel, String uid, String pluginName, Icon icon, String tooltips) {
+    GridBagLayoutModel layoutModel, String uid, String pluginName, Icon icon, String tooltips) {
     super(EventManager.getInstance(), layoutModel, uid, pluginName, icon, tooltips);
+/*     ViewCanvas view2DPane = eventManager.getSelectedViewPane();
+
+    Modality mod =
+        Modality.getModality(TagD.getTagValue(view2DPane.getSeries(), Tag.Modality, String.class));
+    ModalityInfoData modality = ModalityView.getModlatityInfos(mod);
+    JOptionPane.showMessageDialog(null, mod.toString()); */
+    
     setSynchView(SynchView.DEFAULT_STACK);
     addComponentListener(
         new ComponentAdapter() {

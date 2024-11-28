@@ -111,7 +111,7 @@ public class WorklistDialog extends JDialog {
   public void fillTable() {
     DicomState state = queryWorklist(calling, called);
     jtable.getSelectionModel().removeListSelectionListener(selectionListener);
-    List<Attributes> items = state.getDicomRSP();
+    List<Attributes> items = state.getDicomRSP().stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
     if (items != null && !items.isEmpty()) {
       DicomParam[] cols = {
         CFind.PatientName,

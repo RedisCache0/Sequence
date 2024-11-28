@@ -32,6 +32,7 @@ import org.weasis.core.util.StringUtil;
 import org.weasis.dicom.codec.Messages;
 import org.weasis.dicom.codec.TagD;
 import org.weasis.dicom.codec.utils.DicomResource;
+import javax.swing.*;  
 
 public class ModalityView {
   private static final Logger LOGGER = LoggerFactory.getLogger(ModalityView.class);

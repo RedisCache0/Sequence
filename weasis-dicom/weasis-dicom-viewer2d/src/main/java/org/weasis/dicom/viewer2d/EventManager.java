@@ -8,13 +8,15 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 package org.weasis.dicom.viewer2d;
+import org.weasis.dicom.codec.DicomImageElement;
+import javax.swing.*;
+import org.weasis.dicom.codec.utils.DicomMediaUtils;
+import java.util.Comparator;
+import org.weasis.core.api.gui.util.DecFormatter;
+import org.weasis.core.util.StringUtil;
 
 import java.awt.Component;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-import java.awt.event.MouseWheelEvent;
+import java.awt.event.*;
 import java.awt.image.DataBuffer;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -107,10 +109,12 @@ import org.weasis.dicom.codec.TagD;
 import org.weasis.dicom.codec.geometry.ImageOrientation;
 import org.weasis.dicom.codec.utils.DicomResource;
 import org.weasis.dicom.explorer.DicomExplorer;
+import org.weasis.dicom.explorer.SeriesSelectionModel;
 import org.weasis.dicom.explorer.DicomExplorer.ListPosition;
 import org.weasis.dicom.explorer.DicomExportAction;
 import org.weasis.dicom.explorer.DicomModel;
 import org.weasis.dicom.viewer2d.mip.MipView;
+import org.weasis.dicom.viewer2d.mip.MipPopup;
 import org.weasis.dicom.viewer2d.mpr.MprContainer;
 import org.weasis.dicom.viewer2d.mpr.MprView;
 import org.weasis.opencv.op.ImageConversion;
@@ -118,16 +122,30 @@ import org.weasis.opencv.op.lut.ByteLut;
 import org.weasis.opencv.op.lut.ColorLut;
 import org.weasis.opencv.op.lut.DefaultWlPresentation;
 import org.weasis.opencv.op.lut.LutShape;
+import org.weasis.dicom.explorer.wado.LoadSeries;
+import org.weasis.core.api.media.data.Series;
+import org.weasis.core.api.media.data.MediaSeriesGroup;
+import java.util.Objects;
+import javax.swing.*;  
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseListener;
+import org.weasis.core.api.gui.util.ActionW;
+import org.advanced.plugin.advanced.AdvancedPreference;
 
 /**
  * The event processing center for this application. This class responses for loading data sets,
  * processing the events from the utility menu that includes changing the operation scope, the
  * layout, window/level, rotation angle, zoom factor, starting/stoping the cining-loop etc.
  */
-public class EventManager extends ImageViewerEventManager<DicomImageElement>
-    implements ActionListener {
+public class EventManager extends ImageViewerEventManager<DicomImageElement> implements ActionListener {
   private static final Logger LOGGER = LoggerFactory.getLogger(EventManager.class);
-
+  private Series series;
+  private DicomModel dicomModel;
+  private LoadSeries loadSeries;
+  private boolean isRightMouseDown = false;
+  private boolean isInit = false;
+  public MipView mipView;
+  private boolean isMipInitialized = false;
   public static final List<String> functions =
       Collections.unmodifiableList(
           Arrays.asList(
@@ -147,6 +165,18 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
    * Return the single instance of this class. This method guarantees the singleton property of this
    * class.
    */
+
+  
+
+  public EventManager(Series series, DicomModel dicomModel, LoadSeries loadSeries) {
+    this.series = Objects.requireNonNull(series);
+    this.dicomModel = Objects.requireNonNull(dicomModel);
+    this.loadSeries = loadSeries;
+    EventManager eventManager = EventManager.getInstance();
+    ImageViewerPlugin<DicomImageElement> container = eventManager.getSelectedView2dContainer();
+
+  }
+  
   public static synchronized EventManager getInstance() {
     if (instance == null) {
       instance = new EventManager();
@@ -459,8 +489,19 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
 
       @Override
       public void mouseWheelMoved(MouseWheelEvent e) {
+        if (SliderChangeListener.isRightMouseDown) {
+            if (e.getWheelRotation() < 0) {
+              moveSeries(ListPosition.PREVIOUS);
+            }
+            else{
+              moveSeries(ListPosition.NEXT);
+            }
+        }
+
         if (isActionEnabled()) {
-          setSliderValue(getSliderValue() + e.getWheelRotation());
+            setSliderValue(getSliderValue() + e.getWheelRotation());
+            mipView.setActionsInView(ActionW.SCROLL_SERIES.cmd(), getSliderValue());
+            MipView.buildMip(mipView, false);
         }
       }
     };
@@ -533,6 +574,7 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
   }
 
   private ComboItemListener<PresetWindowLevel> newPresetAction() {
+    
     return new ComboItemListener<>(ActionW.PRESET, null) {
 
       @Override
@@ -716,6 +758,12 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
   public void keyTyped(KeyEvent e) {
     // Do nothing
   }
+  public static SeriesSelectionModel getSeriesSelectionModel() {
+    DataExplorerView explorer = GuiUtils.getUICore().getExplorerPlugin(DicomExplorer.NAME);
+    return explorer instanceof DicomExplorer dicomExplorer
+        ? dicomExplorer.getSelectionList()
+        : new SeriesSelectionModel(null);
+  }
 
   @Override
   public void keyPressed(KeyEvent e) {
@@ -755,7 +803,20 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement>
         movePatient(ListPosition.FIRST);
       } else if (keyEvent == KeyEvent.VK_END && e.isControlDown()) {
         movePatient(ListPosition.LAST);
-      } else {
+      }
+      else if (keyEvent == 115){
+        ViewCanvas<DicomImageElement> view = getSelectedViewPane();
+        MediaSeriesGroup series = view.getSeries();
+        DicomExplorer dicom = getDicomExplorer();
+        DicomModel dicomModel = (DicomModel) dicom.getDataExplorerModel();
+        MediaSeriesGroup patientGroup = dicomModel.getParent(dicomModel.getParent(series, DicomModel.study), DicomModel.patient);
+        dicomModel.removePatient(patientGroup);
+
+        // DataExplorerView explorer = GuiUtils.getUICore().getExplorerPlugin(DicomExplorer.NAME);
+        // SeriesSelectionModel selList = getSeriesSelectionModel();
+        
+      }
+       else {
         keyPreset(keyEvent, modifiers);
         triggerDrawingToolKeyEvent(keyEvent, modifiers);
       }

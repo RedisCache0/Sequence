@@ -45,6 +45,7 @@ import org.weasis.dicom.explorer.DicomModel;
 import org.weasis.dicom.viewer2d.Messages;
 import org.weasis.dicom.viewer2d.View2d;
 import org.weasis.dicom.viewer2d.View2dFactory;
+import javax.swing.*;  
 
 public class MipView extends View2d {
   private static final Logger LOGGER = LoggerFactory.getLogger(MipView.class);
@@ -171,9 +172,11 @@ public class MipView extends View2d {
     }
     view.stopCurrentProcess();
 
-    final Type mipType = (Type) view.getActionValue(MipView.MIP.cmd());
+    // final Type mipType = (Type) view.getActionValue(MipView.MIP.cmd());
     final Integer extend = (Integer) view.getActionValue(MIP_THICKNESS.cmd());
+    final Type mipType = MipView.Type.MAX;
     final MediaSeries<DicomImageElement> ser = view.series;
+
     if (ser == null || extend == null || mipType == null) {
       return;
     }

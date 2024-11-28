@@ -50,10 +50,12 @@ import org.weasis.dicom.codec.DicomCodec;
 import org.weasis.dicom.codec.DicomMediaIO;
 import org.weasis.dicom.codec.TagD;
 import org.weasis.dicom.explorer.DicomExplorer;
+import org.weasis.core.ui.editor.image.ViewCanvas;
 
 @org.osgi.service.component.annotations.Component(service = SeriesViewerFactory.class)
 public class View2dFactory implements SeriesViewerFactory {
   private static final Logger LOGGER = LoggerFactory.getLogger(View2dFactory.class);
+  public static final Class<?> view2dClass = ViewCanvas.class;
 
   public static final String NAME = Messages.getString("View2dFactory.title");
 
@@ -84,9 +86,23 @@ public class View2dFactory implements SeriesViewerFactory {
   public SeriesViewer<?> createSeriesViewer(Map<String, Object> properties) {
     ComboItemListener<GridBagLayoutModel> layoutAction =
         EventManager.getInstance().getAction(ActionW.LAYOUT).orElse(null);
-    LayoutModel layout =
-        ImageViewerPlugin.getLayoutModel(properties, ImageViewerPlugin.VIEWS_1x1, layoutAction);
+    WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+    String modality = (String) localPersistence.get("MODALITY");
+    byte[] f = localPersistence.getByteArrayProperty("MODALITY_LAYOUT_(Default)", new byte[]{1, 2});
+    byte[] r = localPersistence.getByteArrayProperty("MODALITY_LAYOUT_"+modality, f);
 
+    GridBagLayoutModel LAYOUTSTYLE =
+      new GridBagLayoutModel(
+          "1x3",
+          String.format(Messages.getString("ImageViewerPlugin.1"), "1x3"), // NON-NLS
+          r[0],
+          r[1],
+          view2dClass.getName());
+    LayoutModel layout =
+        ImageViewerPlugin.getLayoutModel(properties, LAYOUTSTYLE, layoutAction);
+/*     LayoutModel layout =
+        ImageViewerPlugin.getLayoutModel(properties, ImageViewerPlugin.VIEWS_1x1, layoutAction);
+ */
     View2dContainer instance =
         new View2dContainer(layout.model(), layout.uid(), getUIName(), getIcon(), null);
     ImageViewerPlugin.registerInDataExplorerModel(properties, instance);

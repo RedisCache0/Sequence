@@ -41,7 +41,8 @@ import org.weasis.dicom.codec.utils.DicomMediaUtils;
 import org.weasis.dicom.viewer2d.EventManager;
 import org.weasis.dicom.viewer2d.Messages;
 import org.weasis.dicom.viewer2d.dockable.ImageTool;
-
+import javax.swing.*;  
+import java.awt.event.*;
 public class MipPopup {
 
   private MipPopup() {}
@@ -80,6 +81,7 @@ public class MipPopup {
     JSliderW frameSlider;
     JSliderW thickness;
     ChangeListener changeListener;
+    Integer a = 1;
 
     public MipDialog(MipView view) {
       super(
@@ -172,6 +174,7 @@ public class MipPopup {
               getThickness(sliderThickness);
               view.setActionsInView(ActionW.SCROLL_SERIES.cmd(), slider.getValue());
               MipView.buildMip(view, false);
+
             };
         frameSlider.addChangeListener(changeListener);
         sliderThickness.addChangeListener(
@@ -180,6 +183,7 @@ public class MipPopup {
               getThickness(slider);
               view.setActionsInView(MipView.MIP_THICKNESS.cmd(), slider.getValue());
               MipView.buildMip(view, false);
+
             });
       }
 
@@ -200,8 +204,10 @@ public class MipPopup {
       contentPane.add(panel);
       contentPane.add(GuiUtils.boxYLastElement(1));
       setContentPane(contentPane);
-    }
 
+
+    }
+    
     private void getThickness(final JSliderW sliderThickness) {
       StringBuilder buf = new StringBuilder(MipView.MIP_THICKNESS.getTitle());
       buf.append(StringUtil.COLON_AND_SPACE);
@@ -236,9 +242,42 @@ public class MipPopup {
       SliderChangeListener.updateSliderProperties(sliderThickness, buf.toString());
     }
 
+    public void getThicknessINT(int val, int slice) {
+      StringBuilder buf = new StringBuilder(MipView.MIP_THICKNESS.getTitle());
+      buf.append(StringUtil.COLON_AND_SPACE);
+      buf.append(val);
+      MediaSeries<DicomImageElement> series = view.getSeries();
+      if (series != null) {
+        SeriesComparator sort = (SeriesComparator) view.getActionValue(ActionW.SORT_STACK.cmd());
+        Boolean reverse = (Boolean) view.getActionValue(ActionW.INVERSE_STACK.cmd());
+        Comparator sortFilter =
+            (reverse != null && reverse) ? sort.getReversOrderComparator() : sort;
+        Filter filter = (Filter) view.getActionValue(ActionW.FILTERED_SERIES.cmd());
+        int min = Math.max(0, slice - val);
+        int max = Math.min(series.size(filter) - 1, slice + val);
+
+        DicomImageElement fimg = series.getMedia(min, filter, sortFilter);
+        DicomImageElement limg = series.getMedia(max, filter, sortFilter);
+
+        if (fimg != null && limg != null) {
+          buf.append(" (");
+          double thickness = DicomMediaUtils.getThickness(fimg, limg);
+          if (thickness <= 0.0) {
+            thickness = (double) max - min;
+          }
+          buf.append(DecFormatter.allNumber(thickness));
+          buf.append(" ");
+          buf.append(fimg.getPixelSpacingUnit().getAbbreviation());
+          buf.append(")");
+        }
+      }
+    }
+
     public void updateThickness() {
       getThickness(thickness);
     }
+
+
 
     @Override
     public void dispose() {

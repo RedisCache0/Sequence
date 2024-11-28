@@ -20,7 +20,7 @@ import org.weasis.dicom.macro.SOPInstanceReference;
 public class SRDocumentContentModule extends Module {
 
   public SRDocumentContentModule(Attributes dcmItems) {
-    super(dcmItems);
+    super(null);
   }
 
   public Code getNestedCode(int tag) {

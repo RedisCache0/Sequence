@@ -8,7 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 package org.weasis.core.ui.editor.image;
-
+import javax.swing.*;  
+import java.awt.event.KeyEvent;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
 import bibliothek.gui.dock.control.focus.FocusController;
 import java.awt.BasicStroke;
@@ -472,6 +473,7 @@ public interface ViewCanvas<E extends ImageElement>
   }
 
   default void defaultKeyPressed(ImageViewerEventManager<?> eventManager, KeyEvent e) {
+
     if (e.isControlDown() && e.getKeyCode() == KeyEvent.VK_SPACE) {
       eventManager.nextLeftMouseAction();
     } else if (e.getModifiers() == 0

@@ -67,6 +67,7 @@ import org.weasis.dicom.codec.geometry.ImageOrientation;
 import org.weasis.dicom.codec.utils.DicomMediaUtils;
 import org.weasis.dicom.codec.utils.PatientComparator;
 import org.weasis.opencv.data.PlanarImage;
+import javax.swing.*;  
 
 public class DicomMediaIO implements DcmMediaReader {
 
@@ -186,6 +187,7 @@ public class DicomMediaIO implements DcmMediaReader {
       readTagsInModalityView(entry.getValue().getCornerInfo(CornerDisplay.TOP_LEFT).getInfos());
       readTagsInModalityView(entry.getValue().getCornerInfo(CornerDisplay.TOP_RIGHT).getInfos());
       readTagsInModalityView(entry.getValue().getCornerInfo(CornerDisplay.BOTTOM_RIGHT).getInfos());
+
     }
 
     // TODO init with a profile
@@ -337,6 +339,7 @@ public class DicomMediaIO implements DcmMediaReader {
               && !DicomMediaIO.tagManager.contains(tag, Level.PATIENT)
               && !DicomMediaIO.tagManager.contains(tag, Level.STUDY)
               && !DicomMediaIO.tagManager.contains(tag, Level.SERIES)) {
+            
             DicomMediaIO.tagManager.addTag(tag, Level.INSTANCE);
           }
         }

@@ -18,7 +18,7 @@ public class SRElementFactory implements DicomSpecialElementFactory {
 
   public static final String SERIES_SR_MIMETYPE = "sr/dicom"; // NON-NLS
 
-  private static final String[] modalities = {"SR"};
+  private static final String[] modalities = {""};
 
   @Override
   public String getSeriesMimeType() {

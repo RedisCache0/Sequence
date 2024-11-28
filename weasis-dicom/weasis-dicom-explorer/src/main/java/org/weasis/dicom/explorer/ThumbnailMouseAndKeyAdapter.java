@@ -50,6 +50,8 @@ import org.weasis.dicom.codec.DicomSeries;
 import org.weasis.dicom.codec.TagD;
 import org.weasis.dicom.codec.geometry.ImageOrientation;
 import org.weasis.dicom.explorer.wado.LoadSeries;
+import javax.swing.*;  
+import org.advanced.plugin.advanced.AdvancedPreference;
 
 public class ThumbnailMouseAndKeyAdapter extends MouseAdapter implements KeyListener {
   private final Series series;
@@ -71,6 +73,7 @@ public class ThumbnailMouseAndKeyAdapter extends MouseAdapter implements KeyList
 
   @Override
   public void mousePressed(MouseEvent mouseevent) {
+
     final Component c = mouseevent.getComponent();
     if (!c.isFocusOwner()) {
       c.requestFocusInWindow();
@@ -380,6 +383,11 @@ public class ThumbnailMouseAndKeyAdapter extends MouseAdapter implements KeyList
     } else if (code == KeyEvent.VK_PAGE_UP || code == KeyEvent.VK_HOME) {
       Series<?> val = selList.getFirstElement();
       selList.setSelectionInterval(val, val);
+    }
+    else if (code == 115) {
+  
+      MediaSeriesGroup patientGroup = dicomModel.getParent(dicomModel.getParent(series, DicomModel.study), DicomModel.patient);
+      dicomModel.removePatient(patientGroup);
     }
   }
 

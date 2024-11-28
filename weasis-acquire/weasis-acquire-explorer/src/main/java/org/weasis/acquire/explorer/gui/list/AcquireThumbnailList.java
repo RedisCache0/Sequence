@@ -26,6 +26,7 @@ import org.weasis.core.api.gui.util.WinUtil;
 import org.weasis.core.api.media.data.ImageElement;
 import org.weasis.core.api.media.data.MediaElement;
 import org.weasis.core.ui.util.DefaultAction;
+import javax.swing.*;  
 
 public class AcquireThumbnailList<E extends MediaElement> extends AbstractThumbnailList<E> {
 

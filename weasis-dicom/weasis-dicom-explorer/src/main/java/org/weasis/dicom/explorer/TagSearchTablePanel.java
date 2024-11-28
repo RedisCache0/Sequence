@@ -32,8 +32,11 @@ import org.weasis.core.api.util.ResourceUtil;
 import org.weasis.core.api.util.ResourceUtil.ActionIcon;
 import org.weasis.core.ui.util.LabelHighlighted;
 import org.weasis.core.ui.util.TableColumnAdjuster;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import javax.swing.*;  
 
-public class TagSearchTablePanel extends AbstractTagSearchPanel {
+public class TagSearchTablePanel extends AbstractTagSearchPanel implements KeyListener {
 
   private final TreeSet<Integer> searchPositions = new TreeSet<>();
   private int currentSearchIndex = -1;
@@ -65,7 +68,12 @@ public class TagSearchTablePanel extends AbstractTagSearchPanel {
     filterButton.addActionListener(evt -> filter());
     navigateToolbar.add(filterButton);
   }
+  @Override
+  public void keyPressed(KeyEvent e) {
+    int code = e.getKeyCode();
 
+    }
+    
   protected void previous() {
     if (!searchPositions.isEmpty()) {
       int index = Math.max(currentSearchIndex - 1, 0);

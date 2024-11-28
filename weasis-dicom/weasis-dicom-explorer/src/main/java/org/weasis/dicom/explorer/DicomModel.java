@@ -1331,6 +1331,9 @@ public class DicomModel implements TreeModel, DataExplorerModel {
       }
     }
   }
+   public int getPatientCount() {
+      return this.model.getSubTrees().size();
+   }
 
   @Override
   public TreeModelNode getTreeModelNodeForNewPlugin() {

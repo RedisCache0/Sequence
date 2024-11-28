@@ -38,7 +38,7 @@ public abstract class SliderChangeListener extends MouseActionAdapter
   protected volatile boolean triggerWhenAdjusting;
   protected Double realMin;
   protected Double realMax;
-
+  public static boolean isRightMouseDown = false;
   protected SliderChangeListener(
       Feature<? extends ActionState> action, int min, int max, int value) {
     this(action, min, max, value, true);
@@ -160,7 +160,9 @@ public abstract class SliderChangeListener extends MouseActionAdapter
   }
 
   public void setSliderValue(int value) {
-    model.setValue(value);
+
+      model.setValue(value);
+
   }
 
   public void setSliderValue(int value, boolean triggerChangedEvent) {
@@ -328,6 +330,9 @@ public abstract class SliderChangeListener extends MouseActionAdapter
 
   @Override
   public void mousePressed(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON3) {
+            isRightMouseDown = true;
+        }
     if (basicState.isActionEnabled() && !e.isConsumed()) {
       int buttonMask = getButtonMaskEx();
       if ((e.getModifiersEx() & buttonMask) != 0) {
@@ -385,6 +390,9 @@ public abstract class SliderChangeListener extends MouseActionAdapter
 
   @Override
   public void mouseReleased(MouseEvent e) {
+    if (e.getButton() == MouseEvent.BUTTON3) {
+            isRightMouseDown = false;
+        }
     if (basicState.isActionEnabled()
         && !e.isConsumed()
         && (e.getModifiers() & getButtonMask()) != 0) {
@@ -394,9 +402,12 @@ public abstract class SliderChangeListener extends MouseActionAdapter
 
   @Override
   public void mouseWheelMoved(MouseWheelEvent e) {
-    if (basicState.isActionEnabled() && !e.isConsumed()) {
-      setSliderValue(getSliderValue() + e.getWheelRotation() * e.getScrollAmount());
+
+
+      if (basicState.isActionEnabled() && !e.isConsumed()) {
+        setSliderValue(getSliderValue() + e.getWheelRotation() * e.getScrollAmount());
     }
+    
   }
 
   public JSliderW createSlider(int labelDivision, boolean displayValueInTitle) {

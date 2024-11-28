@@ -389,6 +389,8 @@ public class WeasisWin {
             } else {
               viewer.addSeriesList(seriesList, bestDefaultLayout);
             }
+            JOptionPane.showMessageDialog(null, "FOCUS");
+
             viewer.setSelectedAndGetFocus();
             return;
           }

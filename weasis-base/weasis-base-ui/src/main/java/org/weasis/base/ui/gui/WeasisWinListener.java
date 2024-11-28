@@ -44,7 +44,7 @@ import org.weasis.core.ui.editor.image.ViewerPlugin;
 import org.weasis.core.ui.util.Toolbar;
 import org.weasis.core.util.LangUtil;
 import org.weasis.core.util.StringUtil;
-
+import javax.swing.JOptionPane;
 @org.osgi.service.component.annotations.Component(
     service = MainWindowListener.class,
     immediate = true)
@@ -148,6 +148,8 @@ public class WeasisWinListener implements MainWindowListener {
               }
 
             } else {
+              JOptionPane.showMessageDialog(null, "GROUP");
+              
               mainWindow.openSeriesInViewerPlugin(builder, null);
             }
           }

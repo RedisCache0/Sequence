@@ -21,7 +21,8 @@ public class HangingProtocols {
     ONE_PATIENT(Messages.getString("only.the.first.patient")),
     ONE_PATIENT_CLEAN(Messages.getString("only.the.first.patient.remove.previous")),
     ALL_PATIENTS(Messages.getString("all.the.patients")),
-    ALL_PATIENTS_CLEAN(Messages.getString("all.the.patients.remove.previous"));
+    ALL_PATIENTS_CLEAN(Messages.getString("all.the.patients.remove.previous")),
+    ADVANCED("Advanced");
 
     private final String title;
 

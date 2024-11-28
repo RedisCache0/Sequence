@@ -44,7 +44,7 @@ public class SRReader {
       throw new IllegalArgumentException("Dicom parameter cannot be null");
     }
     this.dicomSR = dicomSR;
-    this.dcmItems = dicomSR.getMediaReader().getDicomObject();
+    this.dcmItems = null;
   }
 
   public MediaElement getDicom() {

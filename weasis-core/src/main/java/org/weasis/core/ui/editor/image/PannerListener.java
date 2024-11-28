@@ -8,7 +8,8 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 package org.weasis.core.ui.editor.image;
-
+import javax.swing.*;  
+import java.awt.event.KeyEvent;
 import java.awt.Point;
 import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;

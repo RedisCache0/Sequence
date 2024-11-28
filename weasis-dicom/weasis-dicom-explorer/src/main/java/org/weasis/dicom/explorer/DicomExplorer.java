@@ -1,11 +1,13 @@
 /*
- * Copyright (c) 2009-2020 Weasis Team and other contributors.
- *
- * This program and the accompanying materials are made available under the terms of the Eclipse
- * Public License 2.0 which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache
- * License, Version 2.0 which is available at https://www.apache.org/licenses/LICENSE-2.0.
- *
- * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
+Değişen Dosyalar:
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\wado\LoadRemoteDicomURL.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\wado\LoadRemoteDicomManifest.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\wado\LoadSeries.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\DicomExplorer.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\pacsrapor\PrLogger.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\pacsrapor\ProccessHandler.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\wado\DownloadPriority.java
+weasis-dicom\weasis-dicom-explorer\src\main\java\org\weasis\dicom\explorer\wado\DownloadManager.java
  */
 package org.weasis.dicom.explorer;
 
@@ -47,6 +49,7 @@ import javax.swing.JLabel;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
+import javax.swing.JOptionPane;  
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
@@ -96,6 +99,18 @@ import org.weasis.dicom.codec.TagD;
 import org.weasis.dicom.codec.TagD.Level;
 import org.weasis.dicom.explorer.HangingProtocols.OpeningViewer;
 import org.weasis.dicom.explorer.wado.LoadSeries;
+import javax.swing.*;  
+import java.awt.event.KeyEvent;
+import org.weasis.dicom.explorer.wado.LoadSeries;
+import org.weasis.core.api.media.data.Series;
+import org.weasis.core.api.media.data.MediaSeriesGroup;
+import org.weasis.core.ui.editor.image.ImageViewerEventManager;
+import org.weasis.core.api.explorer.DataExplorerView;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import org.weasis.dicom.explorer.pacsrapor.ProccessHandler;
+import org.weasis.core.api.service.WProperties;
+import java.beans.PropertyChangeEvent;
 
 public class DicomExplorer extends PluginTool implements DataExplorerView, SeriesViewerListener {
 
@@ -116,6 +131,7 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
   public static final String ALL_STUDIES = Messages.getString("DicomExplorer.sel_all_st");
 
   private final PatientPane selectedPatient = new PatientPane();
+  public static WProperties prop = new WProperties();
 
   private final HashMap<MediaSeriesGroup, List<StudyPane>> patient2study = new HashMap<>();
   private final HashMap<MediaSeriesGroup, List<SeriesPane>> study2series = new HashMap<>();
@@ -124,7 +140,9 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
   private final SeriesSelectionModel selectionList;
 
   private final DicomModel model;
-
+  private Series series;
+  private LoadSeries loadSeries;
+  
   private final ArrayListComboBoxModel<Object> modelPatient =
       new ArrayListComboBoxModel<>(DicomSorter.PATIENT_COMPARATOR);
   private final ArrayListComboBoxModel<Object> modelStudy =
@@ -147,19 +165,17 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
   public DicomExplorer() {
     this(null);
   }
+  public static ProccessHandler thumbDowbloadHandler = getProccessHandler("thumbdownloadhandler", 20, 500);
 
-  public DicomExplorer(DicomModel model) {
+  public DicomExplorer(DicomModel model){
     super(NAME, POSITION.WEST, ExtendedMode.NORMALIZED, Insertable.Type.EXPLORER, 20);
     dockable.setMaximizable(true);
     this.model = model == null ? new DicomModel() : model;
     this.selectionList = new SeriesSelectionModel(selectedPatient);
-    int thumbnailSize =
-        GuiUtils.getUICore()
-            .getSystemPreferences()
-            .getIntProperty(Thumbnail.KEY_SIZE, Thumbnail.DEFAULT_SIZE);
-    setDockableWidth(Math.max(thumbnailSize, Thumbnail.DEFAULT_SIZE) + 42);
-
-    patientCombobox.setMaximumRowCount(15);
+    int thumbnailSize = GuiUtils.getUICore().getSystemPreferences().getIntProperty("explorer.thumbnail.size", 144);
+    int colSize = GuiUtils.getUICore().getSystemPreferences().getIntProperty("explorer.thumbnail.colsize", 1);
+    this.setDockableWidth(Math.max(thumbnailSize, 144) * colSize + 50);
+    this.patientCombobox.setMaximumRowCount(15);
     ItemListener patientChangeListener =
         e -> {
           if (e.getStateChange() == ItemEvent.SELECTED) {
@@ -189,6 +205,7 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
   }
 
   private void removePatientPane(MediaSeriesGroup patient) {
+    
     if (patient != null) {
       List<StudyPane> studies = patient2study.remove(patient);
       if (studies != null) {
@@ -298,17 +315,21 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
     return studyPane;
   }
 
-  public void updateThumbnailSize(int thumbnailSize) {
-    updateDockableWidth(Math.max(thumbnailSize, Thumbnail.DEFAULT_SIZE) + 42);
-    for (StudyPane studyPane : selectedPatient.getStudyPaneList()) {
-      for (SeriesPane series : studyPane.getSeriesPaneList()) {
-        series.updateSize(thumbnailSize);
+  public void updateThumbnailSize(int thumbnailSize, int colSize) {
+      this.updateDockableWidth(Math.max(thumbnailSize, 144) * colSize + 50);
+
+      for(StudyPane studyPane : this.selectedPatient.getStudyPaneList()) {
+         for(SeriesPane series : studyPane.getSeriesPaneList()) {
+            series.updateSize(thumbnailSize);
+         }
+
+         studyPane.doLayout();
       }
-      studyPane.doLayout();
-    }
-    selectedPatient.revalidate();
-    selectedPatient.repaint();
-  }
+
+      this.selectedPatient.revalidate();
+      this.selectedPatient.repaint();
+   }
+
 
   private SeriesPane getSeriesPane(MediaSeriesGroup series) {
     List<SeriesPane> seriesList = study2series.get(model.getParent(series, DicomModel.study));
@@ -600,7 +621,11 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
     return Objects.equals(selectedPatient.patient, patient);
   }
 
-  class PatientPane extends JPanel {
+  private static ProccessHandler getProccessHandler(String proc, int poolsize, int maxpoolsize) {
+      return new ProccessHandler(prop.getIntProperty("pacsrapor." + proc + ".poolsize", poolsize), prop.getIntProperty("pacsrapor." + proc + ".maxpoolsize", maxpoolsize));
+  }
+  
+  class PatientPane extends JPanel{
 
     private MediaSeriesGroup patient;
 
@@ -1423,4 +1448,5 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
       return DicomSeriesHandler.dropDicomFiles(files);
     }
   }
+
 }

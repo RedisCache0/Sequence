@@ -551,7 +551,7 @@ public class RetrieveTask extends ExplorerTask<ExplorerTask<Boolean, String>, St
       try {
         LOGGER.debug(RsQueryResult.QIDO_REQUEST, buf);
         List<Attributes> instances =
-            RsQueryResult.parseJSON(buf.toString(), dicomQrView.getAuthMethod(), urlParameters);
+            RsQueryResult.parseJSON(buf.toString(), dicomQrView.getAuthMethod(), urlParameters).stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
         if (!instances.isEmpty()) {
           SeriesInstanceList seriesInstanceList =
               (SeriesInstanceList) dicomSeries.getTagValue(TagW.WadoInstanceReferenceList);

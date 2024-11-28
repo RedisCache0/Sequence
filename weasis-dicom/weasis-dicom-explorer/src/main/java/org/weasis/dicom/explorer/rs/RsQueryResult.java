@@ -400,7 +400,7 @@ public class RsQueryResult extends AbstractQueryResult {
         LOGGER.debug(QIDO_REQUEST, buf);
         List<Attributes> instances =
             parseJSON(
-                buf.toString(), authMethod, new URLParameters(rsQueryParams.getQueryHeaders()));
+                buf.toString(), authMethod, new URLParameters(rsQueryParams.getQueryHeaders())).stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
         if (!instances.isEmpty()) {
           Attributes dataset = instances.get(0);
           MediaSeriesGroup patient = getPatient(dataset, rsQueryParams.getDicomModel());
@@ -464,7 +464,7 @@ public class RsQueryResult extends AbstractQueryResult {
         LOGGER.debug(QIDO_REQUEST, buf);
         List<Attributes> instances =
             parseJSON(
-                buf.toString(), authMethod, new URLParameters(rsQueryParams.getQueryHeaders()));
+                buf.toString(), authMethod, new URLParameters(rsQueryParams.getQueryHeaders())).stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
         if (!instances.isEmpty()) {
           SeriesInstanceList seriesInstanceList =
               (SeriesInstanceList) dicomSeries.getTagValue(TagW.WadoInstanceReferenceList);

@@ -1,17 +1,8 @@
-/*
- * Copyright (c) 2009-2020 Weasis Team and other contributors.
- *
- * This program and the accompanying materials are made available under the terms of the Eclipse
- * Public License 2.0 which is available at https://www.eclipse.org/legal/epl-2.0, or the Apache
- * License, Version 2.0 which is available at https://www.apache.org/licenses/LICENSE-2.0.
- *
- * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
- */
 package org.weasis.core.ui.pref;
 
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Window;
+import java.awt.Dialog.ModalityType;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -20,6 +11,8 @@ import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.tree.DefaultMutableTreeNode;
 import org.osgi.framework.BundleContext;
+import org.osgi.framework.FrameworkUtil;
+import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,139 +21,128 @@ import org.weasis.core.api.gui.InsertableUtil;
 import org.weasis.core.api.gui.PreferencesPageFactory;
 import org.weasis.core.api.gui.util.AbstractItemDialogPage;
 import org.weasis.core.api.gui.util.AbstractWizardDialog;
-import org.weasis.core.api.gui.util.AppProperties;
 import org.weasis.core.api.gui.util.GuiUtils;
 import org.weasis.core.util.StringUtil;
 
 public class PreferenceDialog extends AbstractWizardDialog {
-  private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceDialog.class);
+   private static final Logger LOGGER = LoggerFactory.getLogger(PreferenceDialog.class);
+   public static final String KEY_SHOW_APPLY = "show.apply";
+   public static final String KEY_SHOW_RESTORE = "show.restore";
+   public static final String KEY_HELP = "help.item";
+   protected final JButton jButtonHelp = new JButton();
+   protected final JButton restoreButton = new JButton(Messages.getString("restore.values"));
+   protected final JButton applyButton = new JButton(Messages.getString("LabelPrefView.apply"));
+   protected final JPanel bottomPrefPanel;
 
-  public static final String KEY_SHOW_APPLY = "show.apply";
-  public static final String KEY_SHOW_RESTORE = "show.restore";
-  public static final String KEY_HELP = "help.item";
+   public PreferenceDialog(Window parentWin) {
+      super(parentWin, Messages.getString("OpenPreferencesAction.title"), ModalityType.APPLICATION_MODAL, new Dimension(600, 450));
+      this.bottomPrefPanel = GuiUtils.getFlowLayoutPanel(4, 10, 7, this.jButtonHelp, this.restoreButton, this.applyButton);
+      this.jPanelBottom.add(this.bottomPrefPanel, 0);
+      this.jButtonHelp.putClientProperty("JButton.buttonType", "help");
+      this.applyButton.addActionListener((e) -> {
+         if (this.currentPage != null) {
+            this.currentPage.closeAdditionalWindow();
+         }
 
-  protected final JButton jButtonHelp = new JButton();
-  protected final JButton restoreButton = new JButton(Messages.getString("restore.values"));
-  protected final JButton applyButton = new JButton(Messages.getString("LabelPrefView.apply"));
-  protected final JPanel bottomPrefPanel =
-      GuiUtils.getFlowLayoutPanel(
-          FlowLayout.TRAILING, 10, 7, jButtonHelp, restoreButton, applyButton);
+      });
+      this.restoreButton.addActionListener((e) -> {
+         if (this.currentPage != null) {
+            this.currentPage.resetToDefaultValues();
+         }
 
-  public PreferenceDialog(Window parentWin) {
-    super(
-        parentWin,
-        Messages.getString("OpenPreferencesAction.title"),
-        ModalityType.APPLICATION_MODAL,
-        new Dimension(600, 450));
+      });
+      this.initializePages();
+      this.pack();
+      this.showFirstPage();
+   }
 
-    jPanelBottom.add(bottomPrefPanel, 0);
+   protected void initializePages() {
+      Hashtable<String, Object> properties = new Hashtable();
+      properties.put("weasis.user.prefs", System.getProperty("weasis.user.prefs", "user"));
+      ArrayList<AbstractItemDialogPage> list = new ArrayList();
+      GeneralSetting generalSetting = new GeneralSetting(this);
+      list.add(generalSetting);
+      ViewerPrefView viewerSetting = new ViewerPrefView();
+      list.add(viewerSetting);
+      DicomPrefView dicomPrefView = new DicomPrefView();
+      list.add(dicomPrefView);
+      DrawPrefView drawPrefView = new DrawPrefView(this);
+      list.add(drawPrefView);
+      BundleContext context = FrameworkUtil.getBundle(this.getClass()).getBundleContext();
 
-    jButtonHelp.putClientProperty("JButton.buttonType", "help");
-    applyButton.addActionListener(
-        e -> {
-          if (currentPage != null) currentPage.closeAdditionalWindow();
-        });
-    restoreButton.addActionListener(
-        e -> {
-          if (currentPage != null) {
-            currentPage.resetToDefaultValues();
-          }
-        });
+      try {
+         for(ServiceReference service : context.getServiceReferences(PreferencesPageFactory.class, (String)null)) {
+            PreferencesPageFactory factory = (PreferencesPageFactory)context.getService(service);
+            if (factory != null) {
+               String className = GuiUtils.getUICore().getSystemPreferences().getProperty(factory.getClass().getName());
+               if (!StringUtil.hasText(className) || Boolean.parseBoolean(className)) {
+                  AbstractItemDialogPage page = factory.createInstance(properties);
+                  if (page != null) {
+                     int position = page.getComponentPosition();
+                     if (position < 1000) {
+                        AbstractItemDialogPage mainPage;
+                        if (position > 500 && position < 600) {
+                           mainPage = viewerSetting;
+                        } else if (position > 600 && position < 700) {
+                           mainPage = dicomPrefView;
+                        } else if (position > 700 && position < 800) {
+                           mainPage = drawPrefView;
+                        } else {
+                           mainPage = generalSetting;
+                        }
 
-    initializePages();
-    pack();
-    showFirstPage();
-  }
-
-  @Override
-  protected void initializePages() {
-    Hashtable<String, Object> properties = new Hashtable<>();
-    properties.put("weasis.user.prefs", System.getProperty("weasis.user.prefs", "user")); // NON-NLS
-
-    ArrayList<AbstractItemDialogPage> list = new ArrayList<>();
-    GeneralSetting generalSetting = new GeneralSetting(this);
-    list.add(generalSetting);
-    ViewerPrefView viewerSetting = new ViewerPrefView();
-    list.add(viewerSetting);
-    DicomPrefView dicomPrefView = new DicomPrefView();
-    list.add(dicomPrefView);
-    DrawPrefView drawPrefView = new DrawPrefView(this);
-    list.add(drawPrefView);
-
-    BundleContext context = AppProperties.getBundleContext(this.getClass());
-    try {
-      for (ServiceReference<PreferencesPageFactory> service :
-          context.getServiceReferences(PreferencesPageFactory.class, null)) {
-        PreferencesPageFactory factory = context.getService(service);
-        if (factory != null) {
-          String className =
-              GuiUtils.getUICore().getSystemPreferences().getProperty(factory.getClass().getName());
-          if (!StringUtil.hasText(className) || Boolean.parseBoolean(className)) {
-            AbstractItemDialogPage page = factory.createInstance(properties);
-            if (page != null) {
-              int position = page.getComponentPosition();
-              if (position < 1000) {
-                AbstractItemDialogPage mainPage;
-                if (position > 500 && position < 600) {
-                  mainPage = viewerSetting;
-                } else if (position > 600 && position < 700) {
-                  mainPage = dicomPrefView;
-                } else if (position > 700 && position < 800) {
-                  mainPage = drawPrefView;
-                } else {
-                  mainPage = generalSetting;
-                }
-                JComponent menuPanel = mainPage.getMenuPanel();
-                mainPage.addSubPage(page, a -> showPage(page.getTitle()), menuPanel);
-                if (menuPanel != null) {
-                  menuPanel.revalidate();
-                  menuPanel.repaint();
-                }
-              } else {
-                list.add(page);
-              }
+                        JComponent menuPanel = mainPage.getMenuPanel();
+                        mainPage.addSubPage(page, (a) -> this.showPage(page.getTitle()), menuPanel);
+                        if (menuPanel != null) {
+                           menuPanel.revalidate();
+                           menuPanel.repaint();
+                        }
+                     } else {
+                        list.add(page);
+                     }
+                  }
+               }
             }
-          }
-        }
+         }
+      } catch (InvalidSyntaxException e) {
+         LOGGER.error("Get Preference pages from service", e);
       }
-    } catch (Exception e) {
-      LOGGER.error("Get Preference pages from service", e);
-    }
 
-    InsertableUtil.sortInsertable(list);
-    for (AbstractItemDialogPage page : list) {
-      page.sortSubPages();
-      pagesRoot.add(new DefaultMutableTreeNode(page));
-    }
-    iniTree();
-  }
+      InsertableUtil.sortInsertable(list);
 
-  @Override
-  protected void selectPage(AbstractItemDialogPage page) {
-    if (page != null) {
-      super.selectPage(page);
-      applyButton.setVisible(Boolean.TRUE.toString().equals(page.getProperty(KEY_SHOW_APPLY)));
-      restoreButton.setVisible(Boolean.TRUE.toString().equals(page.getProperty(KEY_SHOW_RESTORE)));
-
-      String helpKey = page.getProperty(KEY_HELP);
-      for (ActionListener al : jButtonHelp.getActionListeners()) {
-        jButtonHelp.removeActionListener(al);
+      for(AbstractItemDialogPage page : list) {
+         page.sortSubPages();
+         this.pagesRoot.add(new DefaultMutableTreeNode(page));
       }
-      jButtonHelp.setVisible(StringUtil.hasText(helpKey));
-      if (jButtonHelp.isVisible()) {
-        jButtonHelp.addActionListener(GuiUtils.createHelpActionListener(jButtonHelp, helpKey));
+
+      this.iniTree();
+   }
+
+   protected void selectPage(AbstractItemDialogPage page) {
+      if (page != null) {
+         super.selectPage(page);
+         this.applyButton.setVisible(Boolean.TRUE.toString().equals(page.getProperty("show.apply")));
+         this.restoreButton.setVisible(Boolean.TRUE.toString().equals(page.getProperty("show.restore")));
+         String helpKey = page.getProperty("help.item");
+
+         for(ActionListener al : this.jButtonHelp.getActionListeners()) {
+            this.jButtonHelp.removeActionListener(al);
+         }
+
+         this.jButtonHelp.setVisible(StringUtil.hasText(helpKey));
+         if (this.jButtonHelp.isVisible()) {
+            this.jButtonHelp.addActionListener(GuiUtils.createHelpActionListener(this.jButtonHelp, helpKey));
+         }
       }
-    }
-  }
 
-  @Override
-  public void cancel() {
-    dispose();
-  }
+   }
 
-  @Override
-  public void dispose() {
-    closeAllPages();
-    super.dispose();
-  }
+   public void cancel() {
+      this.dispose();
+   }
+
+   public void dispose() {
+      this.closeAllPages();
+      super.dispose();
+   }
 }

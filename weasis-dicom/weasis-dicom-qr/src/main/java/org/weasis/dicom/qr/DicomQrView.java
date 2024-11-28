@@ -818,7 +818,7 @@ public class DicomQrView extends AbstractItemDialogPage implements ImportDicom {
   }
 
   private void displayResult(DicomState state) {
-    List<Attributes> items = state.getDicomRSP();
+    List<Attributes> items = state.getDicomRSP().stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
     DicomModel dicomModel = new DicomModel();
     if (items != null) {
       for (int i = 0; i < items.size(); i++) {

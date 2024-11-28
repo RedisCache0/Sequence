@@ -67,6 +67,9 @@ import org.weasis.dicom.explorer.DicomModel;
 import org.weasis.dicom.viewer2d.mpr.MprView;
 import org.weasis.opencv.data.PlanarImage;
 import org.weasis.opencv.op.lut.DefaultWlPresentation;
+import org.weasis.core.api.gui.util.GuiUtils;
+import org.weasis.core.api.service.WProperties;
+import javax.swing.*;  
 
 /**
  * The Class InfoLayer.
@@ -116,6 +119,10 @@ public class InfoLayer extends AbstractInfoLayer<DicomImageElement> {
 
   @Override
   public void paint(Graphics2D g2) {
+    WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+    int fontsize = localPersistence.getIntProperty("FONTSIZE", 17);
+    Font font = g2.getFont();
+    g2.setFont(new Font(font.getName(), font.getStyle(), fontsize));
     DicomImageElement image = view2DPane.getImage();
     FontMetrics fontMetrics = g2.getFontMetrics();
     final Rectangle bound = view2DPane.getJComponent().getBounds();

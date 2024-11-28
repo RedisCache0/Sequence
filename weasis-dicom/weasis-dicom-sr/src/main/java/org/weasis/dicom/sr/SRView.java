@@ -82,7 +82,7 @@ public class SRView extends JScrollPane implements SeriesViewerListener {
   }
 
   public SRView(Series<?> series) {
-    JPanel panel = new JPanel();
+/*     JPanel panel = new JPanel();
     panel.setLayout(new BorderLayout());
     panel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
     htmlPanel.setBorder(GuiUtils.getEmptyBorder(5, 5, 5, 5));
@@ -107,7 +107,7 @@ public class SRView extends JScrollPane implements SeriesViewerListener {
         });
     setPreferredSize(GuiUtils.getDimension(1024, 1024));
     setSeries(series);
-    htmlPanel.setTransferHandler(new SeriesHandler());
+    htmlPanel.setTransferHandler(new SeriesHandler()); */
   }
 
   public JTextPane getHtmlPanel() {
@@ -115,7 +115,7 @@ public class SRView extends JScrollPane implements SeriesViewerListener {
   }
 
   public synchronized Series<?> getSeries() {
-    return series;
+    return null;
   }
 
   public synchronized void setSeries(Series<?> newSeries) {
@@ -186,7 +186,7 @@ public class SRView extends JScrollPane implements SeriesViewerListener {
 
   private void displayLimitedDicomInfo(DicomSpecialElement media) {
 
-    StringBuilder html = new StringBuilder();
+/*     StringBuilder html = new StringBuilder();
     if (media != null) {
       SRReader reader = new SRReader(series, media);
       map.clear();
@@ -194,7 +194,7 @@ public class SRView extends JScrollPane implements SeriesViewerListener {
     }
     htmlPanel.setText(html.toString());
     this.setViewportView(htmlPanel);
-    htmlPanel.moveCaretPosition(0);
+    htmlPanel.moveCaretPosition(0); */
   }
 
   private void openRelatedSeries(String reference) {

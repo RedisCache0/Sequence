@@ -66,7 +66,7 @@ public class CFindQueryResult extends AbstractQueryResult {
               advancedParams, callingNode, calledNode, 0, QueryRetrieveLevel.SERIES, keysSeries);
 
       // TODO add error message
-      List<Attributes> seriesRSP = state.getDicomRSP();
+      List<Attributes> seriesRSP = state.getDicomRSP().stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
       if (seriesRSP != null && !seriesRSP.isEmpty()) {
         MediaSeriesGroup studyGroup = model.getStudyNode(studyUID);
         MediaSeriesGroup patientGroup = model.getParent(studyGroup, DicomModel.patient);
@@ -112,7 +112,7 @@ public class CFindQueryResult extends AbstractQueryResult {
           CFind.process(
               advancedParams, callingNode, calledNode, 0, QueryRetrieveLevel.IMAGE, keysInstance);
 
-      List<Attributes> instances = state.getDicomRSP();
+      List<Attributes> instances = state.getDicomRSP().stream().filter((x) -> !x.getString(524384).equals("SR")).toList();
       if (instances != null && !instances.isEmpty()) {
         Series s = getSeries(study, seriesDataset);
 

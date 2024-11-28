@@ -8,7 +8,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR Apache-2.0
  */
 package org.weasis.dicom.explorer;
-
+import javax.swing.JOptionPane;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -21,6 +21,8 @@ import org.weasis.core.api.media.data.Series;
 import org.weasis.core.ui.editor.SeriesViewerFactory;
 import org.weasis.core.ui.editor.ViewerPluginBuilder;
 import org.weasis.dicom.explorer.HangingProtocols.OpeningViewer;
+import org.weasis.core.api.service.WProperties;
+import org.weasis.dicom.codec.TagD;
 
 public class PluginOpeningStrategy {
 
@@ -81,6 +83,10 @@ public class PluginOpeningStrategy {
     Objects.requireNonNull(dicomModel);
     Objects.requireNonNull(dicomSeries);
 
+    WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+    String modality = (String)TagD.getTagValue(dicomSeries, 524384, String.class);
+    localPersistence.put("MODALITY", modality);
+
     boolean isPatientOpen = containsPatient(patient);
     boolean selectPatient = !isPatientOpen;
     if (!isPatientOpen && canAddNewPatient()) {
@@ -88,13 +94,22 @@ public class PluginOpeningStrategy {
       if (plugin != null && !(plugin instanceof MimeSystemAppFactory)) {
         addPatient(patient);
         selectPatient = false;
-        ViewerPluginBuilder.openSequenceInPlugin(plugin, dicomSeries, dicomModel, true, true);
+        if(!OpeningViewer.ADVANCED.equals(openingMode)){
+          ViewerPluginBuilder.openSequenceInPlugin(plugin, dicomSeries, dicomModel, true, true, true);
+        }
+        else{
+          ViewerPluginBuilder.openSequenceInPlugin(plugin, dicomSeries, dicomModel, true, true, false);
+        }
       }
     }
     if (selectPatient) {
+      JOptionPane.showMessageDialog(null, "Select Patient");
       // Send event to select the related patient in Dicom Explorer.
-      dicomModel.firePropertyChange(
-          new ObservableEvent(ObservableEvent.BasicAction.SELECT, dicomModel, null, dicomSeries));
+      if(!OpeningViewer.ADVANCED.equals(openingMode)){
+        dicomModel.firePropertyChange(
+            new ObservableEvent(ObservableEvent.BasicAction.SELECT, dicomModel, null, dicomSeries));
+        }
+
     }
   }
 

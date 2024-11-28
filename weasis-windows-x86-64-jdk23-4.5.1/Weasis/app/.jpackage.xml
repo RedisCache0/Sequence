@@ -1,0 +1,8 @@
+<?xml version="1.0" ?>
+<jpackage-state version="23" platform="windows">
+  <app-version>4.5.1</app-version>
+  <main-launcher>Weasis</main-launcher>
+  <main-class>org.weasis.launcher.AppLauncher</main-class>
+  <signed>false</signed>
+  <app-store>false</app-store>
+  <add-launcher name="Dicomizer" shortcut="true" menu="true" service="false"></add-launcher></jpackage-state>

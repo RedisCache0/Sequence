@@ -14,6 +14,9 @@ import java.util.List;
 import javax.swing.SwingWorker;
 import org.weasis.core.api.gui.task.CircularProgressBar;
 import org.weasis.dicom.param.CancelListener;
+import java.awt.event.KeyListener;
+import java.awt.event.KeyEvent;
+import javax.swing.*;  
 
 public abstract class ExplorerTask<T, V> extends SwingWorker<T, V> {
   private final String message;
@@ -81,4 +84,6 @@ public abstract class ExplorerTask<T, V> extends SwingWorker<T, V> {
       cancelListener.cancel();
     }
   }
+
+
 }

@@ -1,7 +1,7 @@
 name: weasis
 title: Weasis
 base: core22
-version: '4.5.1'
+version: '4.5.2-SNAPSHOT'
 summary: A free/libre/open medical DICOM viewer
 description: |
   Weasis is a multipurpose standalone and web-based DICOM viewer with 
