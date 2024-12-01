@@ -28,7 +28,7 @@ public class AppProperties {
 
   /** The version of the application (for display) */
   public static final String WEASIS_VERSION =
-      System.getProperty("weasis.version", "4.5.2"); // NON-NLS
+      System.getProperty("weasis.version", "0.0.0"); // NON-NLS
 
   /** The name of the application (for display) */
   public static final String WEASIS_NAME = System.getProperty("weasis.name", "Weasis"); // NON-NLS
