@@ -163,7 +163,7 @@ public class AutoProcessor {
         continue;
       }
       try {
-        weasisLoader.writeLabel(WeasisLoader.LBL_DOWNLOADING + " " + bundleName.replaceAll("weasis", "sequence"));
+        weasisLoader.writeLabel(WeasisLoader.LBL_DOWNLOADING + " " + bundleName);
         // Do not download again the same bundle version but with different location or already in
         // installed
         // in cache from a previous version of Weasis

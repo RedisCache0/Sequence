@@ -290,7 +290,7 @@
     },
     {
       "code": "weasis.name",
-      "value": "Sequence",
+      "value": "Weasis",
       "description": "Change the name of the application everywhere in UI",
       "type": "AP",
       "category": "LAUNCH"
