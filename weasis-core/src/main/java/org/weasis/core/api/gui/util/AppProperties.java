@@ -28,10 +28,10 @@ public class AppProperties {
 
   /** The version of the application (for display) */
   public static final String WEASIS_VERSION =
-      System.getProperty("weasis.version", "0.0.0"); // NON-NLS
+      System.getProperty("weasis.version", "4.5.2"); // NON-NLS
 
   /** The name of the application (for display) */
-  public static final String WEASIS_NAME = System.getProperty("weasis.name", "Weasis"); // NON-NLS
+  public static final String WEASIS_NAME = System.getProperty("weasis.name", "Sequence"); // NON-NLS
 
   /**
    * The current user of the application (defined either in the launch property "weasis.user" or by
@@ -87,7 +87,7 @@ public class AppProperties {
   /** The path of the directory “.weasis” (containing the installation and the preferences) */
   public static final String WEASIS_PATH =
       System.getProperty(
-          "weasis.path", System.getProperty("user.home") + File.separator + ".weasis"); // NON-NLS
+          "weasis.path", System.getProperty("user.home") + File.separator + ".sequence"); // NON-NLS
 
   public static final File FILE_CACHE_DIR = buildAccessibleTempDirectory("cache"); // NON-NLS
 

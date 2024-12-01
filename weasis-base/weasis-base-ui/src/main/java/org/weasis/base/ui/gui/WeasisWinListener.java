@@ -123,8 +123,6 @@ public class WeasisWinListener implements MainWindowListener {
                       && builder.getFactory().isViewerCreatedByThisFactory(selectedPlugin);
 
               if (series.size() == 1) {
-                JOptionPane.showMessageDialog(null, "1");
-
                 MediaSeries<MediaElement> s = series.get(0);
                 MediaSeriesGroup group =
                     treeModel.getParent(s, model.getTreeModelNodeForNewPlugin());
@@ -134,7 +132,6 @@ public class WeasisWinListener implements MainWindowListener {
                 }
                 mainWindow.openSeriesInViewerPlugin(builder, group);
               } else if (series.size() > 1) {
-
 
                 HashMap<MediaSeriesGroup, List<MediaSeries<?>>> map =
                     mainWindow.getSeriesByEntry(

@@ -392,7 +392,7 @@ public class WeasisWin {
 
             }
 
-            //viewer.setSelectedAndGetFocus();
+            viewer.setSelectedAndGetFocus();
             return;
           }
         }
@@ -461,7 +461,6 @@ public class WeasisWin {
       }
       if (registered) {
 
-        // viewer.setSelectedAndGetFocus();
         if (seriesViewer instanceof ImageViewerPlugin) {
           if (!setInSelection) {
             ((ImageViewerPlugin) viewer).selectLayoutPositionForAddingSeries(seriesList);
@@ -470,7 +469,20 @@ public class WeasisWin {
         for (MediaSeries m : seriesList) {
           viewer.addSeries(m);
         }
-        // viewer.setSelected(true);
+        List<ViewerPlugin<?>> viewerPlugins = GuiUtils.getUICore().getViewerPlugins();
+
+        ViewerPlugin<?> p = viewerPlugins.get(0);
+        p.setSelectedAndGetFocus();
+        p.setSelected(true);
+        if (p instanceof ImageViewerPlugin) {
+          for (ViewCanvas<?> vieww : ((ImageViewerPlugin<?>) p).getImagePanels()) {
+            if (vieww != null) {
+              vieww.getGraphicManager().updateLabels(true, vieww);
+            }
+          }
+        }
+        
+        
       } else {
         viewer.close();
         viewer.handleFocusAfterClosing();

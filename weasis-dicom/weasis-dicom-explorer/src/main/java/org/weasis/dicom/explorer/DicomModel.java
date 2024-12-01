@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.weasis.core.api.command.Option;
 import org.weasis.core.api.command.Options;
+import org.weasis.core.api.explorer.DataExplorerView;
 import org.weasis.core.api.explorer.ObservableEvent;
 import org.weasis.core.api.explorer.ObservableEvent.BasicAction;
 import org.weasis.core.api.explorer.model.DataExplorerModel;
@@ -59,6 +60,7 @@ import org.weasis.core.api.media.data.SeriesThumbnail;
 import org.weasis.core.api.media.data.TagView;
 import org.weasis.core.api.media.data.TagW;
 import org.weasis.core.api.media.data.Thumbnail;
+import org.weasis.core.api.service.WProperties;
 import org.weasis.core.api.util.GzipManager;
 import org.weasis.core.api.util.ResourceUtil;
 import org.weasis.core.api.util.ResourceUtil.OtherIcon;
@@ -512,7 +514,13 @@ public class DicomModel implements TreeModel, DataExplorerModel {
       LOGGER.info("Remove Study: {}", studyGroup);
     }
   }
-
+  private DicomExplorer getDicomExplorer() {
+    DataExplorerView dicomView = GuiUtils.getUICore().getExplorerPlugin(DicomExplorer.NAME);
+    if (dicomView instanceof DicomExplorer dicom) {
+      return dicom;
+    }
+    return null;
+  }
   public void removePatient(MediaSeriesGroup patientGroup) {
     if (patientGroup != null) {
       if (!DownloadManager.getTasks().isEmpty()) {
@@ -533,6 +541,11 @@ public class DicomModel implements TreeModel, DataExplorerModel {
         }
       }
       removeHierarchyNode(MediaSeriesGroupNode.rootNode, patientGroup);
+      WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+      localPersistence.putIntProperty("PATIENTNUM", getPatientCount());
+      DicomExplorer dicom = getDicomExplorer();
+      dicom.updateLabelFromProperty();
+
       LOGGER.info("Remove Patient: {}", patientGroup);
     }
   }
@@ -680,6 +693,10 @@ public class DicomModel implements TreeModel, DataExplorerModel {
           props.put(ViewerPluginBuilder.UID, uid);
           ViewerPluginBuilder builder = new ViewerPluginBuilder(plugin, seriesList, this, props);
           ViewerPluginBuilder.openSequenceInPlugin(builder);
+          WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+          localPersistence.putIntProperty("PATIENTNUM", getPatientCount());
+          DicomExplorer dicom = getDicomExplorer();
+          dicom.updateLabelFromProperty();
           this.firePropertyChange(
               new ObservableEvent(ObservableEvent.BasicAction.SELECT, uid, null, koSpecialElement));
         }

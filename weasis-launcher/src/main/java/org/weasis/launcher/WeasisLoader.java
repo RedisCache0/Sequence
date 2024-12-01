@@ -11,6 +11,7 @@ package org.weasis.launcher;
 
 import com.formdev.flatlaf.extras.FlatSVGIcon;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Container;
 import java.awt.EventQueue;
 import java.awt.Font;
@@ -68,6 +69,7 @@ public class WeasisLoader {
     RootPaneContainer frame = mainFrame.getRootPaneContainer();
 
     Window win = new Window((Frame) frame);
+    win.setBackground(new Color(48, 59, 70));
     win.addWindowListener(
         new java.awt.event.WindowAdapter() {
 
@@ -100,10 +102,10 @@ public class WeasisLoader {
     imagePane.setVerticalTextPosition(SwingConstants.TOP);
     imagePane.setHorizontalTextPosition(SwingConstants.CENTER);
     imagePane.setFocusable(false);
-
+    imagePane.setBackground(new Color(48, 59, 70));
     JPanel panel = new JPanel(new BorderLayout());
     panel.add(imagePane, BorderLayout.CENTER);
-
+    panel.setBackground(new Color(48, 59, 70));
     JPanel panelProgress = new JPanel(new BorderLayout());
     panelProgress.add(loadingLabel, BorderLayout.NORTH);
     panelProgress.add(downloadProgress, BorderLayout.CENTER);

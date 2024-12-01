@@ -46,6 +46,7 @@ import org.weasis.core.ui.editor.SeriesViewer;
 import org.weasis.core.ui.editor.SeriesViewerUI;
 import org.weasis.core.ui.editor.ViewerPluginBuilder;
 import org.weasis.core.ui.util.Toolbar;
+import org.weasis.core.api.service.WProperties;
 
 public abstract class ViewerPlugin<E extends MediaElement> extends JPanel
     implements SeriesViewer<E> {
@@ -162,7 +163,7 @@ public abstract class ViewerPlugin<E extends MediaElement> extends JPanel
     List<ViewerPlugin<?>> viewerPlugins = GuiUtils.getUICore().getViewerPlugins();
     int size = viewerPlugins.size();
     if (size > 0) {
-      ViewerPlugin<?> lp = viewerPlugins.get(size - 1);
+      ViewerPlugin<?> lp = viewerPlugins.get(0);
       if (lp != null) {
         lp.dockable.toFront();
       }
@@ -198,21 +199,25 @@ public abstract class ViewerPlugin<E extends MediaElement> extends JPanel
         () -> {
           if (!dockable.isVisible()) {
             List<ViewerPlugin<?>> viewerPlugins = GuiUtils.getUICore().getViewerPlugins();
+
             if (!viewerPlugins.contains(ViewerPlugin.this)) {
               viewerPlugins.add(ViewerPlugin.this);
             }
             dockable.add(getComponent());
+            ViewerPlugin<?> lp = viewerPlugins.get(0);
             dockable.setFocusComponent(ViewerPlugin.this);
             CWorkingArea mainArea = GuiUtils.getUICore().getMainArea();
             mainArea.add(getDockable());
-            dockable.setDefaultLocation(
+            lp.dockable.setDefaultLocation(
                 ExtendedMode.NORMALIZED, CLocation.working(mainArea).stack());
-            CControl control = GuiUtils.getUICore().getDockingControl();
-            CVetoFocusListener vetoFocus = GuiUtils.getUICore().getDockingVetoFocus();
-            control.addVetoFocusListener(vetoFocus);
             dockable.setVisible(true);
-            control.removeVetoFocusListener(vetoFocus);
-            setSelectedAndGetFocus();
+            if (lp != null) {
+              lp.dockable.toFront();
+            }
+            GuiUtils.getUICore()
+            .getDockingControl()
+            .getController()
+            .setFocusedDockable(new DefaultFocusRequest(lp.dockable.intern(), this, false, true, false));
           }
         });
   }

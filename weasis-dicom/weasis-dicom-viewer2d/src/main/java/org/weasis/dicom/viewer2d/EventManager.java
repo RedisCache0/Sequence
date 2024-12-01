@@ -126,9 +126,8 @@ import org.weasis.dicom.explorer.wado.LoadSeries;
 import org.weasis.core.api.media.data.Series;
 import org.weasis.core.api.media.data.MediaSeriesGroup;
 import java.util.Objects;
-import javax.swing.*;  
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
+import javax.swing.*;
+
 import org.weasis.core.api.gui.util.ActionW;
 import org.advanced.plugin.advanced.AdvancedPreference;
 
@@ -141,6 +140,7 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement> imp
   private static final Logger LOGGER = LoggerFactory.getLogger(EventManager.class);
   private Series series;
   private DicomModel dicomModel;
+  private DicomExplorer dicomExplorer;
   private LoadSeries loadSeries;
   private boolean isRightMouseDown = false;
   private boolean isInit = false;
@@ -235,7 +235,8 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement> imp
     Preferences prefs = BundlePreferences.getDefaultPreferences(context);
     zoomSetting.applyPreferences(prefs);
     mouseActions.applyPreferences(prefs);
-
+    DicomExplorer dicom = getDicomExplorer();
+    dicom.updateLabelFromProperty();
     if (prefs != null) {
       Preferences prefNode = prefs.node("mouse.sensivity");
       getSliderPreference(prefNode, ActionW.WINDOW, 1.25);
@@ -811,6 +812,7 @@ public class EventManager extends ImageViewerEventManager<DicomImageElement> imp
         DicomModel dicomModel = (DicomModel) dicom.getDataExplorerModel();
         MediaSeriesGroup patientGroup = dicomModel.getParent(dicomModel.getParent(series, DicomModel.study), DicomModel.patient);
         dicomModel.removePatient(patientGroup);
+        dicom.updateLabelFromProperty();
 
         // DataExplorerView explorer = GuiUtils.getUICore().getExplorerPlugin(DicomExplorer.NAME);
         // SeriesSelectionModel selList = getSeriesSelectionModel();

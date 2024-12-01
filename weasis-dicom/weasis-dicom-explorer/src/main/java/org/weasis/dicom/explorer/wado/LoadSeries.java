@@ -561,7 +561,6 @@ public class LoadSeries extends ExplorerTask<Boolean, String> implements SeriesI
   }
 
     public void loadThumbnail(final SopInstance instance, final WadoParameters wadoParameters) {
-        
         DicomExplorer.thumbDowbloadHandler.addTask(new SwingWorker<Object, Object>() {
             protected String doInBackground() {
                 File file = null;

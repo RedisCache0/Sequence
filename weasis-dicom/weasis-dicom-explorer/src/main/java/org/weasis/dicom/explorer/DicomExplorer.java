@@ -14,6 +14,8 @@ package org.weasis.dicom.explorer;
 import bibliothek.gui.dock.common.CLocation;
 import bibliothek.gui.dock.common.mode.ExtendedMode;
 import bibliothek.gui.dock.control.focus.DefaultFocusRequest;
+import de.erichseifert.vectorgraphics2d.intermediate.filters.StateChangeGroupingFilter;
+
 import com.formdev.flatlaf.ui.FlatUIUtils;
 import java.awt.Color;
 import java.awt.Component;
@@ -51,6 +53,7 @@ import javax.swing.JPanel;
 import javax.swing.JPopupMenu;
 import javax.swing.JOptionPane;  
 import javax.swing.JScrollPane;
+import java.awt.Font;
 import javax.swing.JViewport;
 import javax.swing.ScrollPaneConstants;
 import javax.swing.SwingConstants;
@@ -148,6 +151,8 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
   private final ArrayListComboBoxModel<Object> modelStudy =
       new ArrayListComboBoxModel<>(DicomSorter.STUDY_COMPARATOR);
   private final JComboBox<?> patientCombobox = new JComboBox<>(modelPatient);
+  public final JLabel patientNum = new JLabel();
+
   private final JComboBox<?> studyCombobox = new JComboBox<>(modelStudy);
   private final transient ItemListener studyItemListener =
       e -> {
@@ -225,7 +230,13 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
       }
     }
   }
-
+  public void updateLabelFromProperty() {
+    WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+    int value = localPersistence.getIntProperty("PATIENTNUM", 1);
+    int fontsize = localPersistence.getIntProperty("FONTSIZE", 17);
+    patientNum.setText("Patient: "+String.valueOf(value));
+    patientNum.setFont(new Font("Mini", Font.PLAIN, fontsize));
+  }
   private void removeStudy(MediaSeriesGroup study) {
     MediaSeriesGroup patient = model.getParent(study, DicomModel.patient);
     List<StudyPane> studies = patient2study.get(patient);
@@ -898,8 +909,12 @@ public class DicomExplorer extends PluginTool implements DataExplorerView, Serie
 
       final JLabel label = new JLabel(ResourceUtil.getIcon(OtherIcon.PATIENT, 24, 24));
       panelMain.add(label, GuiUtils.NEWLINE);
+      WProperties localPersistence = GuiUtils.getUICore().getLocalPersistence();
+      localPersistence.putIntProperty("PATIENTNUM", 0);
       label.setLabelFor(patientCombobox);
       panelMain.add(patientCombobox, "width 30lp:min:250lp"); // NON-NLS
+      patientNum.setText("Patient: 0");
+      panelMain.add(patientNum); // NON-NLS
 
       final JLabel labelStudy = new JLabel(ResourceUtil.getIcon(OtherIcon.CALENDAR, 24, 24));
       labelStudy.setLabelFor(studyCombobox);

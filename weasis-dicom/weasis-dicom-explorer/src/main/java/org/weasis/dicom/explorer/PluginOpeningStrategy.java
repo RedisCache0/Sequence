@@ -14,6 +14,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
+
+import org.weasis.core.api.explorer.DataExplorerView;
 import org.weasis.core.api.explorer.ObservableEvent;
 import org.weasis.core.api.gui.util.GuiUtils;
 import org.weasis.core.api.media.data.MediaSeriesGroup;
@@ -77,7 +79,13 @@ public class PluginOpeningStrategy {
     return OpeningViewer.ONE_PATIENT_CLEAN.equals(openingMode)
         || OpeningViewer.ALL_PATIENTS_CLEAN.equals(openingMode);
   }
-
+  private DicomExplorer getDicomExplorer() {
+    DataExplorerView dicomView = GuiUtils.getUICore().getExplorerPlugin(DicomExplorer.NAME);
+    if (dicomView instanceof DicomExplorer dicom) {
+      return dicom;
+    }
+    return null;
+  }
   public void openViewerPlugin(
       MediaSeriesGroup patient, DicomModel dicomModel, Series<?> dicomSeries) {
     Objects.requireNonNull(dicomModel);
@@ -95,11 +103,15 @@ public class PluginOpeningStrategy {
         addPatient(patient);
         selectPatient = false;
         if(!OpeningViewer.ADVANCED.equals(openingMode)){
+          
           ViewerPluginBuilder.openSequenceInPlugin(plugin, dicomSeries, dicomModel, true, true, true);
         }
         else{
           ViewerPluginBuilder.openSequenceInPlugin(plugin, dicomSeries, dicomModel, true, true, false);
         }
+        localPersistence.putIntProperty("PATIENTNUM", dicomModel.getPatientCount());
+        DicomExplorer dicom = getDicomExplorer();
+        dicom.updateLabelFromProperty();
       }
     }
     if (selectPatient) {
